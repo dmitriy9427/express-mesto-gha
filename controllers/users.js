@@ -3,7 +3,7 @@ const statusCodes = require('../utils/statusCodes');
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(users))
+    .then((users) => res.send(users))
     .catch(() => res.status(statusCodes.ERROR_CODE_500).send({ message: 'Ошибка на стороне сервера.' }));
 };
 
@@ -12,7 +12,7 @@ module.exports.getUserById = (req, res) => {
 
   User.findById(userId)
     .orFail(() => new Error('NotFound'))
-    .then((user) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
@@ -34,7 +34,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res

@@ -3,8 +3,8 @@ const statusCodes = require('../utils/statusCodes');
 
 module.exports.getAllCards = (req, res) => {
   Cards.find({})
-    .then((cards) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(cards))
-    .catch(() => res.status(500).send({ message: 'Ошибка на стороне сервера.' }));
+    .then((cards) => res.send(cards))
+    .catch(() => res.status(statusCodes.ERROR_CODE_500).send({ message: 'Ошибка на стороне сервера.' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -12,7 +12,7 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Cards.create({ name, link, owner })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res
@@ -31,7 +31,7 @@ module.exports.deleteCardById = (req, res) => {
 
   Cards.findByIdAndRemove(cardId)
     .orFail(() => new Error('NotFound'))
-    .then((card) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
@@ -56,7 +56,7 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => new Error('NotFound'))
-    .then((card) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
@@ -81,7 +81,7 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => new Error('NotFound'))
-    .then((card) => res.status(statusCodes.SUCСESSFUL_REQUEST).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
