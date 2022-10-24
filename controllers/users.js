@@ -16,7 +16,7 @@ module.exports.getAllUsers = (req, res, next) => {
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      throw new NotFound({ message: 'Пользователь не найден'});
+      throw new NotFound({ message: 'Пользователь не найден' });
     })
     .then((user) => {
       res.send(user);
@@ -59,7 +59,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные.'}));
+        next(new BadRequest({ message: 'Переданы некорректные данные.' }));
       } else if (err.code === 11000) {
         next(new Conflict({ message: 'Переданы некорректные данные' }));
       } else {
@@ -103,7 +103,7 @@ module.exports.updateProfile = (req, res, next) => {
       } else if (err.message === 'NotFound') {
         next(new NotFound({ message: 'Пользователь с указанным _id не найден' }));
       } else {
-        next(new InternalServerError({ message: 'Ошибка по умолчанию.'}));
+        next(new InternalServerError({ message: 'Ошибка по умолчанию.' }));
       }
     });
 };
@@ -125,7 +125,7 @@ module.exports.updateAvatar = (req, res, next) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
       } else if (err.message === 'ValidationError ') {
-        next(new NotFound({ message: 'Пользователь с указанным _id не найден'}));
+        next(new NotFound({ message: 'Пользователь с указанным _id не найден' }));
       } else {
         next(new InternalServerError({ message: 'Ошибка по умолчанию.' }));
       }
