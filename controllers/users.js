@@ -5,29 +5,11 @@ const Unauthorized = require('../errors/Unauthorized');
 const BadRequest = require('../errors/BadRequest');
 const Conflict = require('../errors/Conflict');
 const NotFound = require('../errors/NotFound');
-const InternalServerError = require('../errors/InternalServerError');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send(user))
-    .catch((err) => next(err));
-};
-
-module.exports.getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
-    .orFail(() => {
-      throw new NotFound({ message: 'Пользователь не найден' });
-    })
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные' }));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -53,15 +35,12 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => User.findOne({ _id: user._id })) // убираем пароль
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequest({ message: 'Переданы некорректные данные.' }));
-      } else if (err.code === 11000) {
-        next(new Conflict({ message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -76,11 +55,40 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
-
-      res.send({ message: 'Регистрация прошла успешно!' });
     })
     .catch(() => {
       next(new Unauthorized({ message: 'Необходима авторизация' }));
+    });
+};
+
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest({ message: 'Переданы некорректные данные.' }));
+      } else {
+        next(err);
+      }
+    });
+};
+
+module.exports.getUserById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .orFail(() => {
+      throw new NotFound({ message: 'Пользователь не найден' });
+    })
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest({ message: 'Переданы некорректные данные' }));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -100,10 +108,8 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
-      } else if (err.message === 'NotFound') {
-        next(new NotFound({ message: 'Пользователь с указанным _id не найден' }));
       } else {
-        next(new InternalServerError({ message: 'Ошибка по умолчанию.' }));
+        next(err);
       }
     });
 };
@@ -124,22 +130,6 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
-      } else if (err.message === 'ValidationError ') {
-        next(new NotFound({ message: 'Пользователь с указанным _id не найден' }));
-      } else {
-        next(new InternalServerError({ message: 'Ошибка по умолчанию.' }));
-      }
-    });
-};
-
-module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные.' }));
       } else {
         next(err);
       }

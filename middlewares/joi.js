@@ -1,8 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 
 const validateUrl = (value, helpers) => {
-  const regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/;
-
+  const regex = /^https?:\/\/(www\.)?[a-zA-Z\d]+\.[\w\-._~:/?#[\]@!$&'()*+,;=]{2,}#?$/g;
   if (!regex.test(value)) {
     return helpers.error('Ссылка не валидна');
   }

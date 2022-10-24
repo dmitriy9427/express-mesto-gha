@@ -23,9 +23,6 @@ app.post('/signup', registerValid, createUser);
 
 app.use(auth);
 
-// роуты защищенные авторизацией
-app.use('/cards', require('./routes/cards'));
-
 app.use(routesUsers);
 app.use(routesCards);
 
@@ -38,7 +35,8 @@ app.use(errors());
 // централизованный обработчик ошибок
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
-  res.status(status).send({ err });
+  const message = status === 500 ? 'На сервере произошла ошибка' : err.message;
+  res.status(status).send({ message });
   next();
 });
 
