@@ -25,7 +25,7 @@ module.exports.createUser = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       if (user) {
-        next(new Conflict({ message: `Пользователь с таким email ${email} уже зарегистрирован` }));
+        next(new Conflict(`Пользователь с таким email ${email} уже зарегистрирован`));
       } else { return bcrypt.hash(password, 10); }
     })
     .then((hash) => User.create({
@@ -36,11 +36,13 @@ module.exports.createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      res.send(user);
+      const newUser = { ...user.toJSON() };
+      delete newUser.password;
+      res.send(newUser);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные.' }));
+        next(new BadRequest('Переданы некорректные данные.'));
       } else {
         next(err);
       }
@@ -57,7 +59,7 @@ module.exports.login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      next(new Unauthorized({ message: 'Необходима авторизация' }));
+      next(new Unauthorized('Необходима авторизация'));
     });
 };
 
@@ -68,7 +70,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные.' }));
+        next(new BadRequest('Переданы некорректные данные.'));
       } else {
         next(err);
       }
@@ -78,14 +80,14 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      throw new NotFound({ message: 'Пользователь не найден' });
+      throw new NotFound('Пользователь не найден');
     })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest({ message: 'Переданы некорректные данные' }));
+        next(new BadRequest('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -102,12 +104,12 @@ module.exports.updateProfile = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .orFail(() => {
-      throw new NotFound({ message: 'Пользователь по указанному _id не найден' });
+      throw new NotFound('Пользователь по указанному _id не найден');
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
+        next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
       } else {
         next(err);
       }
@@ -124,12 +126,12 @@ module.exports.updateAvatar = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .orFail(() => {
-      throw new NotFound({ message: 'Пользователь с указанным _id не найден' });
+      throw new NotFound('Пользователь с указанным _id не найден');
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
+        next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
       } else {
         next(err);
       }
