@@ -1,8 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const routesUsers = require('./routes/users');
 const routesCards = require('./routes/cards');
-const statusCodes = require('./utils/statusCodes');
+const NotFound = require('./errors/NotFound');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const { registerValid, loginValid } = require('./middlewares/joi');
 
 const { PORT = 3000 } = process.env;
 
@@ -11,19 +15,31 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '634be5075dd685d24ed12cfb',
-  };
+// логин
+app.post('/signin', loginValid, login);
 
-  next();
-});
+// регистрация
+app.post('/signup', registerValid, createUser);
+
+app.use(auth);
+
+// роуты защищенные авторизацией
+app.use('/cards', require('./routes/cards'));
 
 app.use(routesUsers);
 app.use(routesCards);
 
-app.use((req, res) => {
-  res.status(statusCodes.ERROR_CODE_404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use(() => {
+  throw new NotFound('Запрашиваемый ресурс не найден');
+});
+
+app.use(errors());
+
+// централизованный обработчик ошибок
+app.use((err, req, res, next) => {
+  const status = err.statusCode || 500;
+  res.status(status).send({ err });
+  next();
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
