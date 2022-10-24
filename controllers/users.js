@@ -9,7 +9,7 @@ const InternalServerError = require('../errors/InternalServerError');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => next(err));
 };
 
@@ -19,7 +19,7 @@ module.exports.getUserById = (req, res, next) => {
       throw new NotFound('Пользователь не найден');
     })
     .then((user) => {
-      res.status(200).send(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -55,7 +55,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => User.findOne({ _id: user._id })) // убираем пароль
     .then((user) => {
-      res.status(200).send(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -77,7 +77,7 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
 
-      res.status(200).send({ message: 'Регистрация прошла успешно!' });
+      res.send({ message: 'Регистрация прошла успешно!' });
     })
     .catch(() => {
       next(new Unauthorized('Необходима авторизация'));
@@ -96,7 +96,7 @@ module.exports.updateProfile = (req, res, next) => {
     .orFail(() => {
       throw new NotFound('Пользователь по указанному _id не найден');
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
@@ -120,7 +120,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .orFail(() => {
       throw new NotFound('Пользователь с указанным _id не найден');
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
@@ -135,7 +135,7 @@ module.exports.updateAvatar = (req, res, next) => {
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      res.status(200).send(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
