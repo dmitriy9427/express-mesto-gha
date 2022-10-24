@@ -16,14 +16,14 @@ module.exports.getAllUsers = (req, res, next) => {
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      throw new NotFound('Пользователь не найден');
+      throw new NotFound({ message: 'Пользователь не найден'});
     })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные.'));
+        next(new BadRequest({ message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -43,7 +43,7 @@ module.exports.createUser = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       if (user) {
-        next(new Conflict(`Пользователь с таким email ${email} уже зарегистрирован`));
+        next(new Conflict({ message: `Пользователь с таким email ${email} уже зарегистрирован` }));
       } else { return bcrypt.hash(password, 10); }
     })
     .then((hash) => User.create({
@@ -59,7 +59,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные.'));
+        next(new BadRequest({ message: 'Переданы некорректные данные.'}));
       } else if (err.code === 11000) {
         next(new Conflict({ message: 'Переданы некорректные данные' }));
       } else {
@@ -80,7 +80,7 @@ module.exports.login = (req, res, next) => {
       res.send({ message: 'Регистрация прошла успешно!' });
     })
     .catch(() => {
-      next(new Unauthorized('Необходима авторизация'));
+      next(new Unauthorized({ message: 'Необходима авторизация' }));
     });
 };
 
@@ -94,16 +94,16 @@ module.exports.updateProfile = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .orFail(() => {
-      throw new NotFound('Пользователь по указанному _id не найден');
+      throw new NotFound({ message: 'Пользователь по указанному _id не найден' });
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
+        next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
       } else if (err.message === 'NotFound') {
-        next(new NotFound('Пользователь с указанным _id не найден'));
+        next(new NotFound({ message: 'Пользователь с указанным _id не найден' }));
       } else {
-        next(new InternalServerError('Ошибка по умолчанию.'));
+        next(new InternalServerError({ message: 'Ошибка по умолчанию.'}));
       }
     });
 };
@@ -118,16 +118,16 @@ module.exports.updateAvatar = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .orFail(() => {
-      throw new NotFound('Пользователь с указанным _id не найден');
+      throw new NotFound({ message: 'Пользователь с указанным _id не найден' });
     })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new BadRequest(`Переданы некорректные данные при обновлении профиля -- ${err.name}`));
+        next(new BadRequest({ message: `Переданы некорректные данные при обновлении профиля -- ${err.name}` }));
       } else if (err.message === 'ValidationError ') {
-        next(new NotFound('Пользователь с указанным _id не найден'));
+        next(new NotFound({ message: 'Пользователь с указанным _id не найден'}));
       } else {
-        next(new InternalServerError('Ошибка по умолчанию.'));
+        next(new InternalServerError({ message: 'Ошибка по умолчанию.' }));
       }
     });
 };
@@ -139,7 +139,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные.'));
+        next(new BadRequest({ message: 'Переданы некорректные данные.' }));
       } else {
         next(err);
       }
