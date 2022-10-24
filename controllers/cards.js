@@ -38,11 +38,9 @@ module.exports.deleteCardById = (req, res, next) => {
       res.send({ data: card, message: 'Карточка успешно удалена' });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(err);
-      } else {
-        next(err);
-      }
+      if (err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные'));
+      } else { next(err); }
     });
 };
 
