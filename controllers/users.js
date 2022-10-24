@@ -61,7 +61,7 @@ module.exports.createUser = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
       } else if (err.code === 11000) {
-        next(new Conflict({ message: err.errorMessage }));
+        next(new Conflict({ message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }

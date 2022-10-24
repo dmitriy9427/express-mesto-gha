@@ -20,7 +20,7 @@ module.exports.createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'BadRequest') {
-        next(new BadRequest({ message: err.errorMessage }));
+        next(new BadRequest({ message: 'Переданы некорректные данные' }));
       } else { next(err); }
     });
 };
@@ -59,7 +59,7 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest({ message: err.errorMessage }));
+        next(new BadRequest({ message: 'Переданы некорректные данные' }));
       } else { next(err); }
     });
 };
