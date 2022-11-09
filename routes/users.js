@@ -1,10 +1,10 @@
-const router = require('express').Router();
+const router = require("express").Router();
 
 const {
   userAvatarValid,
   parameterIdValid,
   userValid,
-} = require('../middlewares/joi');
+} = require("../middlewares/joi");
 
 const {
   getAllUsers,
@@ -12,12 +12,12 @@ const {
   getUserById,
   updateProfile,
   updateAvatar,
-} = require('../controllers/users');
+} = require("../controllers/users");
 
-router.get('/users', getAllUsers);
-router.get('/users/me', getCurrentUser);
-router.get('/users/:userId', parameterIdValid('userId'), getUserById);
-router.patch('/users/me', userValid, updateProfile);
-router.patch('/users/me/avatar', userAvatarValid, updateAvatar);
+router.get("/users", getAllUsers);
+router.get("/users/me", getCurrentUser);
+router.get("/users/:userId", parameterIdValid("userId"), getUserById);
+router.patch("/users/me", userValid, updateProfile);
+router.patch("/users/me/avatar", userAvatarValid, updateAvatar);
 
 module.exports = router;

@@ -1,9 +1,10 @@
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require("celebrate");
 
 const validateUrl = (value, helpers) => {
-  const regex = /^https?:\/\/(www\.)?[a-zA-Z\d]+\.[\w\-._~:/?#[\]@!$&'()*+,;=]{2,}#?$/g;
+  const regex =
+    /^https?:\/\/(www\.)?[a-zA-Z\d]+\.[\w\-._~:/?#[\]@!$&'()*+,;=]{2,}#?$/g;
   if (!regex.test(value)) {
-    return helpers.error('Ссылка не валидна');
+    return helpers.error("Ссылка не валидна");
   }
   return value;
 };
@@ -45,8 +46,9 @@ module.exports.userValid = celebrate({
   }),
 });
 
-module.exports.parameterIdValid = (nameId) => celebrate({
-  params: Joi.object().keys({
-    [nameId]: Joi.string().hex().length(24),
-  }),
-});
+module.exports.parameterIdValid = (nameId) =>
+  celebrate({
+    params: Joi.object().keys({
+      [nameId]: Joi.string().hex().length(24),
+    }),
+  });
